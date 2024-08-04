@@ -63,6 +63,15 @@ export const login = (req, res) => {
     }
 };
 
+export const verifyUser = (req, res) => {
+    const decodedToken = jwt.verify(req.params.token, process.env.VITE_JWT_TOKEN);
+    const decodedId = decodedToken.userId;
+
+    User.findOne({ _id: decodedId })
+    .then(target => res.status(200).json({ target }))
+    .catch(error => res.status(404).json({ error }))
+}
+
 // export const iscompany = async (req, res) => {
 //     try {
 //         const check = await Company.findOne({ phone: req.params.phone })

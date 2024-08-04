@@ -1,5 +1,6 @@
 
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setValidateOrder } from '../../redux/features/ValidateOrderSlice';
 
@@ -7,19 +8,41 @@ import { setValidateOrder } from '../../redux/features/ValidateOrderSlice';
 function Event(props) {
 
     const dispatch = useDispatch()
-    const test = useSelector((state) => state.ValidateOrder.validateOrder)
-    const HandleClickOrder = () => {
-        dispatch(setValidateOrder(true))
-        console.log(test)
+    const test1 = useSelector((state) => state.ValidateOrder.validateOrder)
+    const [SubmitValidator, setSubmitValidator] = useState(true)
 
-
+    function SubmitEvent() {
+        console.log(SubmitValidator)
+        setSubmitValidator(!SubmitValidator)
+        console.log(SubmitValidator)
+        if (SubmitValidator == true) {
+            setSubmitValidator(!SubmitValidator)
+            fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-verif', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    _id: props.test._id,
+                })
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log('Succès:', data);
+                })
+                .catch(function (error) {
+                    console.error('Erreur:', error);
+                })
+        }
     }
+
     return (
         <>
             <div style={{ background: props.tempBg, display: "flex", width: "100%" }}>
                 <div style={{ display: "flex", width: "50%", justifyContent: "space-between", alignItems: "center" }}>
                     <div
-                        onContextMenu={(e) => { e.preventDefault(); console.log("oui chef"); }}
                         style={{}}
                     >
                         Gregory Thaillandier
@@ -32,8 +55,10 @@ function Event(props) {
                         </div>
                         <div style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
                             <i className="fa-solid fa-xmark"></i>
+
+
                         </div>
-                        <div onClick={HandleClickOrder} style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
+                        <div onClick={SubmitEvent} style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
                             <i className="fa-solid fa-check"></i>
                         </div>
                     </div>
@@ -45,6 +70,7 @@ function Event(props) {
 
 Event.propTypes = {
     tempBg: PropTypes.string.isRequired,
+    test: PropTypes.object.isRequired
 };
 
 export default Event;

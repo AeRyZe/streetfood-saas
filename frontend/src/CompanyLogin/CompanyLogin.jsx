@@ -1,18 +1,18 @@
 import { useState } from "react";
-import { useDispatch } from 'react-redux';
-import { useNavigate } from "react-router-dom";
-import { setUserProfile } from "../../redux/features/UserProfileSlice";
+// import { useDispatch } from 'react-redux';
+// import { useNavigate } from "react-router-dom";
+// import { setUserProfile } from "../../redux/features/UserProfileSlice";
 
-function ClientLogin() {
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+function CompanyLogin() {
+    // const navigate = useNavigate()
+    // const dispatch = useDispatch()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const onSubmit = (e) => {
         e.preventDefault();
 
-        fetch('http://88.125.148.207:21000/api/users/login', {
+        fetch('http://88.125.148.207:21000/api/companies/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -27,24 +27,24 @@ function ClientLogin() {
 
             })
             .then(function (data) {
-                fetch('http://88.125.148.207:21000/api/users/' + data.token, {
+                fetch('http://88.125.148.207:21000/api/companies/' + data.token, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                })
-                    .then(function (response) {
-                        return response.json();
-                    })
-                    .then(function (data) {
-                        dispatch(setUserProfile({
-                            firstname: data.target.firstname,
-                            lastname: data.target.lastname,
-                            email: data.target.email,
-                            phone: data.target.phone
-                        }))
-                        navigate("/userHome")
-                    });
+                });
+                // .then(function (response) {
+                //     return response.json();
+                // })
+                // .then(function (data) {
+                //     dispatch(setUserProfile({
+                //         firstname: data.target.firstname,
+                //         lastname: data.target.lastname,
+                //         email: data.target.email,
+                //         phone: data.target.phone
+                //     }))
+                //     navigate("/userHome")
+                // })
 
                 console.log('Succès:', data.token);
             })
@@ -71,4 +71,4 @@ function ClientLogin() {
         </div>
     )
 }
-export default ClientLogin
+export default CompanyLogin

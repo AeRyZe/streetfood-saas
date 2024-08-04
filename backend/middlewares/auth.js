@@ -5,10 +5,9 @@ dotenv.config();
 
 export default (req, res, next) => {
     try {
-        console.log(req.body);
         const token = req.headers.authorization.split(' ')[1];
         const decodedToken = jwt.verify(token, import.meta.env.VITE_JWT_TOKEN);
-        const userId = decodedToken.userId;
+        const userId = decodedToken._id;
 
         req.auth = {
             userId: userId

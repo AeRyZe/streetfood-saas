@@ -5,7 +5,8 @@ import mongoose from 'mongoose';
 
 import userRoute from './routes/user.js';
 import companyRoute from './routes/company.js';
-import reservRoute from './routes/reservation.js'
+import reservRoute from './routes/reservation.js';
+import waitingRoute from './routes/waiting.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -37,6 +38,7 @@ app.use((req, res, next) => {
 app.use('/api/users', userRoute);
 app.use('/api/companies', companyRoute);
 app.use('/api/reservations', reservRoute);
+app.use('/api/iswaiting/', waitingRoute);
 
 //app.use('/images', express.static(resolve(dirname(import.meta.url))));
 

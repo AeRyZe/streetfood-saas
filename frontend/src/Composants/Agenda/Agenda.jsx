@@ -2,10 +2,7 @@
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { setValidateOrder } from '../../redux/features/ValidateOrderSlice';
-import events from "../../assets/events/events"
 import Event from "../CustomComposants/Event"
 
 
@@ -98,40 +95,36 @@ const dayLayoutAlgorithm = 'no-overlap'
 
 
 function Agenda() {
-    const [reservationRequest, setReservationsRequest] = useState()
-    const [myLocalEvents, setLocalEvents] = useState([])
-    const [DBEvents, setDBEvents] = useState()
+    const [myLocalEvents, setLocalEvents] = useState()
     const [getReservations, setGetReservations] = useState()
-    const ValidateOrderValue = useSelector((state) => state.ValidateOrder.validateOrder)
-    const dispatch = useDispatch()
 
-    // useEffect(() => { // Fetch qui permet de récuperer les créneaux reservé a la db.
-    //     fetch('http://88.125.148.207:21000/api/reservations/1/plan-get', {
-    //         method: 'GET',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         }
-    //     })
-    //         .then(function (response) {
-    //             return response.json();
-    //         })
-    //         .then(function (data) {
-    //             const reservations = data.fastfoodPlanning.map((mmDate => {
-    //                 let start = moment.utc(mmDate.start);
-    //                 let end = moment.utc(mmDate.end);
+    useEffect(() => { // Fetch qui permet de récuperer les créneaux reservé a la db.
+        fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-get', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                const reservations = data.fastfoodPlanning.map((mmDate => {
+                    let start = moment.utc(mmDate.start);
+                    let end = moment.utc(mmDate.end);
 
-    //                 mmDate.start = start.local().format();
-    //                 mmDate.end = end.local().format();
-    //                 mmDate.start = moment(start).toDate()
-    //                 mmDate.end = moment(end).toDate()
-    //                 return mmDate;
-    //             }))
-    //             setGetReservations(reservations)
-    //         })
-    //         .catch(function (error) {
-    //             console.error('Erreur:', error);
-    //         });
-    // }, [])
+                    mmDate.start = start.local().format();
+                    mmDate.end = end.local().format();
+                    mmDate.start = moment(start).toDate()
+                    mmDate.end = moment(end).toDate()
+                    return mmDate;
+                }))
+                setLocalEvents(reservations)
+            })
+            .catch(function (error) {
+                console.error('Erreur:', error);
+            });
+    }, [myLocalEvents])
 
     useEffect(() => { // Bout de code qui permet d'éviter les doublons'
         if (getReservations) {
@@ -162,7 +155,6 @@ function Agenda() {
                     isWaiting: true
                 };
                 setLocalEvents((prevEvents) => [...prevEvents, newEvent]) //ON STOCK DANS UN STATE POUR LES EVENTS LOCAUX PAS ENVOYE A LA DB ET PAS CONFIRME
-                setDBEvents(newEvent) // ON SETUP UN STATE POUR SAVOIR SI ON LE GARDE OU LE REFUSE DANS L'AgENDA
 
                 // setReservationsRequest({
                 //     start: start.toUTCString(),
@@ -178,7 +170,7 @@ function Agenda() {
 
     const handleSelectEvent = useCallback(
         (event) => {
-            window.alert(event.isWaiting)
+
         }
 
         , []
@@ -193,55 +185,20 @@ function Agenda() {
     )
 
 
-    useEffect(() => {
-        if (ValidateOrderValue == true) {
-            fetch('http://88.125.148.207:21000/api/reservations/1/plan-add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    fastfoodId: "1",
-                    start: reservationRequest.start,
-                    end: reservationRequest.end,
-                    title: reservationRequest.title
-                })
-            })
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (data) {
-                    console.log('Succès:', data);
-                    dispatch(setValidateOrder(null))
-                })
-                .catch(function (error) {
-                    console.error('Erreur:', error);
-                });
-        }
-    }, [ValidateOrderValue])
 
 
     const RclickComponent = {
         agenda: {
-            event: () => {
-                if (myLocalEvents.isWaiting == true || DBEvents.isWaiting == true) {
-                    return (
-                        <Event tempBg="grey" />
-                    )
-                }
-
-                else {
-                    return (
-                        <Event tempBg="#F1F1F1F1" />
-                    )
-                }
-
-
-
+            event: (e) => {
+                const event = e.event;
+                const tempBg = event.validation ? "" : "grey";
+                return (
+                    <Event tempBg={tempBg} test={event} />
+                );
             }
         }
+    };
 
-    }
     return (
         <div style={{ display: "flex" }}>
             <Calendar

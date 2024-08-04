@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux';
 import store from './redux/store.js'
 import Agenda from './Composants/Agenda/Agenda.jsx'
+import UserAgenda from './Composants/Agenda/UserAgenda.jsx'
 import ClientRegister from './Composants/ClientRegister/ClientRegister.jsx';
 import ClientLogin from './Composants/ClientLogin/ClientLogin.jsx';
+import CompanyRegister from './CompanyRegister/CompanyRegister.jsx';
+import CompanyLogin from './CompanyLogin/CompanyLogin.jsx';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -13,7 +16,7 @@ import './index.css'
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/CompanyHome",
     element: <Agenda />,
   },
   {
@@ -25,8 +28,16 @@ const router = createBrowserRouter([
     element: <ClientLogin />,
   },
   {
+    path: "/register/companies",
+    element: <CompanyRegister />,
+  },
+  {
     path: "/login/companies",
-    element: <Agenda />,
+    element: <CompanyLogin />,
+  },
+  {
+    path: "/userHome",
+    element: <UserAgenda />
   }
 ]);
 
