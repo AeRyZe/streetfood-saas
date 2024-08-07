@@ -78,3 +78,12 @@ export const storeReserv = (req, res) => {
     })
     .catch(error => res.status(404).json({ error }))
 }
+
+export const deleteReserv = (req, res) => {
+    Waiting.updateOne(
+        { fastfoodId: req.params.fastfoodId },
+        { $pull: { fastfoodPlanning: { _id: req.body._id } } }
+    )
+    .then(() => res.status(200).json({ message: 'Réservation supprimée !' }))
+    .catch(error => res.status(404).json({ error }))
+}

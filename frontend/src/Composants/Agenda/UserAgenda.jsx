@@ -182,28 +182,29 @@ function UserAgenda() {
     }, [ValidateOrderValue])
 
 
-    // const RclickComponent = {
+    const CustomUserComponents = {
 
-    //     agenda: {
-    //         event: () => {
-    //             if (myLocalEvents.isWaiting == true || DBEvents.isWaiting == true) {
-    //                 return (
-    //                     <Event tempBg="grey" />
-    //                 )
-    //             }
+        agenda: {
+            event: () => {
+                if (myLocalEvents.isWaiting == true || DBEvents.isWaiting == true) {
+                    return (
+                        <Event tempBg="grey" />
+                    )
+                }
 
-    //             else {
-    //                 return (
-    //                     <Event tempBg="#F1F1F1F1" />
-    //                 )
-    //             }
+                else {
+                    return (
+                        <Event tempBg="#F1F1F1F1" />
+                    )
+                }
 
 
 
-    //         }
-    //     }
+            }
+        }
 
-    // }
+    }
+
     return (
         <div style={{ display: "flex" }}>
             <Calendar
@@ -228,7 +229,7 @@ function UserAgenda() {
                 min={minTime}
                 max={maxTime}
                 timeslots={1}
-                components={RclickComponent}
+                components={CustomUserComponents}
             />
         </div>)
 

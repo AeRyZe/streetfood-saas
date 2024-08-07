@@ -97,8 +97,11 @@ const dayLayoutAlgorithm = 'no-overlap'
 function Agenda() {
     const [myLocalEvents, setLocalEvents] = useState()
     const [getReservations, setGetReservations] = useState()
+    const [getResaIncr, setResaIncr] = useState(true)
 
-    useEffect(() => { // Fetch qui permet de récuperer les créneaux reservé a la db.
+
+
+    useEffect(() => {
         fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-get', {
             method: 'GET',
             headers: {
@@ -124,7 +127,39 @@ function Agenda() {
             .catch(function (error) {
                 console.error('Erreur:', error);
             });
-    }, [myLocalEvents])
+    }, [getResaIncr])
+
+
+
+    useEffect(() => {
+
+        const ws = new WebSocket('ws://88.125.148.207:22000');
+
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+        };
+
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            console.log('WebSocket message received:', message.operationType);
+            setResaIncr(!getResaIncr)
+
+        };
+
+
+
+        ws.onerror = () => {
+            console.error('Websocket error')
+        }
+
+        ws.onclose = () => {
+            console.log('WebSocket disconnected');
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, [getResaIncr]);
 
     useEffect(() => { // Bout de code qui permet d'éviter les doublons'
         if (getReservations) {
@@ -187,7 +222,7 @@ function Agenda() {
 
 
 
-    const RclickComponent = {
+    const CustomCompanyComponent = {
         agenda: {
             event: (e) => {
                 const event = e.event;
@@ -224,7 +259,7 @@ function Agenda() {
                 min={minTime}
                 max={maxTime}
                 timeslots={1}
-                components={RclickComponent}
+                components={CustomCompanyComponent}
             />
         </div>)
 

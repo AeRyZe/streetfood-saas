@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setValidateOrder } from '../../redux/features/ValidateOrderSlice';
 
 
 function Event(props) {
@@ -10,10 +9,9 @@ function Event(props) {
     const dispatch = useDispatch()
     const test1 = useSelector((state) => state.ValidateOrder.validateOrder)
     const [SubmitValidator, setSubmitValidator] = useState(true)
+    const [DeleteValidator, setDeleteValidator] = useState(true)
 
     function SubmitEvent() {
-        console.log(SubmitValidator)
-        setSubmitValidator(!SubmitValidator)
         console.log(SubmitValidator)
         if (SubmitValidator == true) {
             setSubmitValidator(!SubmitValidator)
@@ -31,6 +29,32 @@ function Event(props) {
                 })
                 .then(function (data) {
                     console.log('Succès:', data);
+                    setSubmitValidator(!SubmitValidator)
+                })
+                .catch(function (error) {
+                    console.error('Erreur:', error);
+                })
+        }
+    }
+    function DeleteEvent() {
+        console.log(DeleteValidator)
+        if (DeleteValidator == true) {
+            setDeleteValidator(!DeleteValidator)
+            fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-del', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    _id: props.test._id,
+                })
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log('Succès:', data);
+                    setDeleteValidator(!DeleteValidator)
                 })
                 .catch(function (error) {
                     console.error('Erreur:', error);
@@ -53,12 +77,12 @@ function Event(props) {
                         <div style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
                             <i className="fa-regular fa-clock"></i>
                         </div>
-                        <div style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
+                        <div onClick={DeleteEvent} style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
                             <i className="fa-solid fa-xmark"></i>
 
 
                         </div>
-                        <div onClick={SubmitEvent} style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
+                        <div onClick={SubmitEvent} style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%", zIndex: "10" }}>
                             <i className="fa-solid fa-check"></i>
                         </div>
                     </div>
