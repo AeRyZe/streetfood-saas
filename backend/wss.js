@@ -24,11 +24,11 @@ wss.on('connection', (ws) => {
 
     ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log('WebSocket message received:', message);
+        console.log('WebSocket message received: ', message);
     };
 
     ws.on('close', (code, reason) => {
-        console.log(`Client disconnected: ${code} ${reason}.`);
+        console.log(`Client disconnected: ${code} ${reason}`);
     });
 
     ws.on('error', (error) => {
@@ -37,10 +37,10 @@ wss.on('connection', (ws) => {
 });
 
 Waiting.watch().on('change', (change) => {
-    console.log('Change detected:', change);
+    console.log('Change detected: ', change);
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(change));
+            client.send(JSON.stringify(change));
         }
     });
 });
