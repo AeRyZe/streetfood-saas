@@ -1,16 +1,13 @@
 
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 
 function Event(props) {
 
-    const dispatch = useDispatch()
-    const test1 = useSelector((state) => state.ValidateOrder.validateOrder)
     const [SubmitValidator, setSubmitValidator] = useState(true)
     const [DeleteValidator, setDeleteValidator] = useState(true)
-
+    const [ModifyValidator, setModifyValidator] = useState(true)
     function SubmitEvent() {
         console.log(SubmitValidator)
         if (SubmitValidator == true) {
@@ -62,6 +59,42 @@ function Event(props) {
         }
     }
 
+    function ModifyEvent() {
+        const actualstart = new Date(props.test.start)
+        const actualend = new Date(props.test.end)
+        if (ModifyValidator == true) {
+            const popup = window.prompt('Combien de minutes de retard ?')
+            if (popup) {
+                actualstart.setMinutes(actualstart.getMinutes() + parseInt(popup))
+                actualend.setMinutes(actualstart.getMinutes() + parseInt(popup / 2))
+                console.log(actualstart)
+                console.log(props.test._id)
+                fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-edit', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        start: actualstart,
+                        end: actualend,
+                        _id: props.test._id,
+                    })
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        console.log('Succès:', data);
+                        setModifyValidator(!ModifyValidator)
+                    })
+                    .catch(function (error) {
+                        console.error('Erreur:', error);
+                    })
+                setModifyValidator(!ModifyValidator)
+            }
+        }
+    }
+
     return (
         <>
             <div style={{ background: props.tempBg, display: "flex", width: "100%" }}>
@@ -74,15 +107,15 @@ function Event(props) {
                 </div>
                 <div style={{ display: "flex", width: "50%", justifyContent: "flex-end", alignContent: "center" }}>
                     <div style={{ display: "flex", width: "50%", height: "100%", gap: "15px" }}>
-                        <div style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
+                        <div onClick={ModifyEvent} style={{ display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
                             <i className="fa-regular fa-clock"></i>
                         </div>
-                        <div onClick={DeleteEvent} style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
+                        <div onClick={DeleteEvent} style={{ display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer", width: "100%", border: "1px solid black", height: "100%" }}>
                             <i className="fa-solid fa-xmark"></i>
 
 
                         </div>
-                        <div onClick={SubmitEvent} style={{ cursor: "pointer", width: "100%", border: "1px solid black", height: "100%", zIndex: "10" }}>
+                        <div onClick={SubmitEvent} style={{ display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer", width: "100%", border: "1px solid black", height: "100%", zIndex: "10" }}>
                             <i className="fa-solid fa-check"></i>
                         </div>
                     </div>

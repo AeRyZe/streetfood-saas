@@ -4,6 +4,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import Event from "../CustomComposants/Event"
+import MonthEvent from '../CustomComposants/MonthEvent';
 
 
 
@@ -69,7 +70,7 @@ moment.defineLocale('fr', {
 });
 
 const minTime = new Date();
-minTime.setHours(11, 0, 0); // La journée commence à 11h
+minTime.setHours(18, 0, 0); // La journée commence à 11h
 
 const maxTime = new Date();
 maxTime.setHours(23, 59, 59); // La journée finit à 23h59
@@ -98,6 +99,7 @@ function Agenda() {
     const [myLocalEvents, setLocalEvents] = useState()
     const [getReservations, setGetReservations] = useState()
     const [getResaIncr, setResaIncr] = useState(true)
+    let today = new Date
 
 
 
@@ -205,7 +207,7 @@ function Agenda() {
 
     const handleSelectEvent = useCallback(
         (event) => {
-
+            window.alert("Créneaux Indisponible")
         }
 
         , []
@@ -220,16 +222,53 @@ function Agenda() {
     )
 
 
-
-
     const CustomCompanyComponent = {
+
         agenda: {
             event: (e) => {
                 const event = e.event;
-                const tempBg = event.validation ? "" : "grey";
-                return (
-                    <Event tempBg={tempBg} test={event} />
-                );
+                if (event.validation) {
+                    return (
+                        <Event tempBg="" test={event} />
+                    );
+                }
+
+                else if (!event.validation || event.end != today) {
+                    return (
+                        <Event tempBg="grey" test={event} />
+                    );
+                }
+            }
+
+        },
+        month: {
+            event: (e) => {
+                const event = e.event;
+                if (event.end > today) {
+                    return (
+                        <MonthEvent tempBg="grey" test={event} />
+                    );
+                }
+            }
+        },
+        day: {
+            event: (e) => {
+                const event = e.event;
+                if (event.end > today) {
+                    return (
+                        <MonthEvent tempBg="grey" test={event} />
+                    );
+                }
+            }
+        },
+        week: {
+            event: (e) => {
+                const event = e.event;
+                if (event.end > today) {
+                    return (
+                        <MonthEvent tempBg="grey" test={event} />
+                    );
+                }
             }
         }
     };
@@ -238,6 +277,7 @@ function Agenda() {
         <div style={{ display: "flex" }}>
             <Calendar
                 dayLayoutAlgorithm={dayLayoutAlgorithm}
+                step={5}
                 localizer={localizer}
                 views={{
                     month: true,

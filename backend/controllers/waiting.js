@@ -41,7 +41,7 @@ export const addPlanning = (req, res) => {
     .catch(error => res.status(500).json({ error }))
 };
 
-export const confirmReserv = (req, res) => {
+export const confirmPlanning = (req, res) => {
     Waiting.updateOne(
         { fastfoodId: req.params.fastfoodId, "fastfoodPlanning._id": req.body._id },
         { $set: { "fastfoodPlanning.$.validation": true } }
@@ -50,40 +50,49 @@ export const confirmReserv = (req, res) => {
     .catch(error => res.status(404).json({ error }))
 };
 
-export const storeReserv = (req, res) => {
-    Waiting.findOne({ fastfoodId: req.params.fastfoodId })
-    .then(waitingObject => {
-        const objectToMove = waitingObject.fastfoodPlanning.id(req.body._id);
+// export const storePlanning = (req, res) => {
+//     Waiting.findOne({ fastfoodId: req.params.fastfoodId })
+//     .then(waitingObject => {
+//         const objectToMove = waitingObject.fastfoodPlanning.id(req.body._id);
 
-        Reservation.findOne({ fastfoodId: req.params.fastfoodId })
-        .then(planning => {
-            if (!planning) {
-                const newPlanning = new Reservation ({
-                    fastfoodId: req.params.fastfoodId,
-                    fastfoodPlanning: [{...objectToMove}]
-                });
+//         Reservation.findOne({ fastfoodId: req.params.fastfoodId })
+//         .then(planning => {
+//             if (!planning) {
+//                 const newPlanning = new Reservation ({
+//                     fastfoodId: req.params.fastfoodId,
+//                     fastfoodPlanning: [{...objectToMove}]
+//                 });
 
-                newPlanning.save()
-                .then(() => res.status(201).json({ message: "Réservation enregistrée !"}))
-                .catch(error => res.status(500).json({ error }))
-            } else {
-                planning.fastfoodPlanning.push({...objectToMove});
+//                 newPlanning.save()
+//                 .then(() => res.status(201).json({ message: "Réservation enregistrée !"}))
+//                 .catch(error => res.status(500).json({ error }))
+//             } else {
+//                 planning.fastfoodPlanning.push({...objectToMove});
 
-                planning.save()
-                .then(() => res.status(201).json({ message: 'Réservation enregistrée !'}))
-                .catch(error => res.status(500).json({ error }))
-            }
-        })
-        .catch(error => res.status(404).json({ error }))
-    })
-    .catch(error => res.status(404).json({ error }))
-}
+//                 planning.save()
+//                 .then(() => res.status(201).json({ message: 'Réservation enregistrée !'}))
+//                 .catch(error => res.status(500).json({ error }))
+//             }
+//         })
+//         .catch(error => res.status(404).json({ error }))
+//     })
+//     .catch(error => res.status(404).json({ error }))
+// };
 
-export const deleteReserv = (req, res) => {
+export const deletePlanning = (req, res) => {
     Waiting.updateOne(
         { fastfoodId: req.params.fastfoodId },
         { $pull: { fastfoodPlanning: { _id: req.body._id } } }
     )
     .then(() => res.status(200).json({ message: 'Réservation supprimée !' }))
+    .catch(error => res.status(404).json({ error }))
+};
+
+export const editPlanning = (req, res) => {
+    Waiting.updateOne(
+        { fastfoodId: req.params.fastfoodId, "fastfoodPlanning._id": req.body._id },
+        { $set: { "fastfoodPlanning.$.start": req.body.start, "fastfoodPlanning.$.end": req.body.end } }
+    )
+    .then(() => res.status(200).json({ message: 'Réservation modifiée !'}))
     .catch(error => res.status(404).json({ error }))
 }

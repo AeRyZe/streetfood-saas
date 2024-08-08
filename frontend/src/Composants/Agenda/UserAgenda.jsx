@@ -10,9 +10,8 @@ import Event from "../CustomComposants/Event"
 import '../../assets/style.css'
 
 
-
 const minTime = new Date();
-minTime.setHours(11, 0, 0); // La journée commence à 11h
+minTime.setHours(18, 0, 0); // La journée commence à 11h
 
 const maxTime = new Date();
 maxTime.setHours(23, 59, 59); // La journée finit à 23h59
@@ -139,7 +138,7 @@ function UserAgenda() {
 
     const handleSelectEvent = useCallback(
         (event) => {
-            window.alert(event.isWaiting)
+            window.alert("Créneaux Indisponible")
         }
 
         , []
@@ -181,10 +180,11 @@ function UserAgenda() {
         }
     }, [ValidateOrderValue])
 
+    console.log(myLocalEvents)
 
     const CustomUserComponents = {
-
         agenda: {
+
             event: () => {
                 if (myLocalEvents.isWaiting == true || DBEvents.isWaiting == true) {
                     return (
@@ -209,6 +209,7 @@ function UserAgenda() {
         <div style={{ display: "flex" }}>
             <Calendar
                 dayLayoutAlgorithm={dayLayoutAlgorithm}
+                step={5}
                 localizer={localizer}
                 views={{
                     month: true,

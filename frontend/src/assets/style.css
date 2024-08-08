@@ -1,8 +1,12 @@
 .rbc-day-slot .rbc-time-slot {
-    z-index: 10;
+    z-index: 1;
 }
 
 .rbc-day-slot .rbc-time-slot:hover {
     background-color: #3174ad;
     cursor: pointer;
+}
+
+.rbc-event {
+    z-index: 2;
 }
