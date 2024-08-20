@@ -6,14 +6,16 @@ export const UserProfileSlice = createSlice({
         firstname : "",
         lastname : "",
         email : "",
-        phone : ""
+        phone : "",
+        token: ""
     },
     reducers: {
         setUserProfile: (state, action) => {
-            state.firstname = action.payload
-            state.lastname = action.payload
-            state.email = action.payload
-            state.phone = action.payload
+            state.firstname = action.payload.firstname;
+            state.lastname = action.payload.lastname;
+            state.email = action.payload.email;
+            state.phone = action.payload.phone;
+            state.token = action.payload.token;
 
         },
     }

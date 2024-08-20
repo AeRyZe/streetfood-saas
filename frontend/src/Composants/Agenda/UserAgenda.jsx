@@ -1,17 +1,16 @@
-
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import 'moment/locale/fr'
+import 'moment/locale/fr';
 import moment from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { setValidateOrder } from '../../redux/features/ValidateOrderSlice';
-import Event from "../CustomComposants/Event"
-import '../../assets/style.css'
-
+import Event from "../CustomComposants/Event";
+import '../../assets/style.css';
+import { useNavigate } from 'react-router-dom';
 
 const minTime = new Date();
-minTime.setHours(18, 0, 0); // La journée commence à 11h
+minTime.setHours(18, 0, 0); // La journée commence à 18h
 
 const maxTime = new Date();
 maxTime.setHours(23, 59, 59); // La journée finit à 23h59
@@ -33,68 +32,74 @@ const messages = {
     showMore: total => `+ ${total} événement(s) supplémentaire(s)`,
 };
 
-const dayLayoutAlgorithm = 'no-overlap'
-
+const dayLayoutAlgorithm = 'no-overlap';
 
 function UserAgenda() {
-    const [reservationRequest, setReservationsRequest] = useState()
-    const [myLocalEvents, setLocalEvents] = useState([])
-    const [DBEvents, setDBEvents] = useState()
-    const [getReservations, setGetReservations] = useState()
-    const ValidateOrderValue = useSelector((state) => state.ValidateOrder.validateOrder)
-    const dispatch = useDispatch()
+    const [reservationRequest, setReservationsRequest] = useState();
+    const [myLocalEvents, setLocalEvents] = useState([]);
+    const [DBEvents, setDBEvents] = useState();
+    const [getReservations, setGetReservations] = useState();
+    const ValidateOrderValue = useSelector((state) => state.ValidateOrder.validateOrder);
+    const dispatch = useDispatch();
+    const reduxToken = useSelector((state) => state.UserProfile.token);
+    const navigate = useNavigate();
 
-    // useEffect(() => { // Fetch qui permet de récuperer les créneaux reservé a la db.
-    //     fetch('http://88.125.148.207:21000/api/reservations/1/plan-get', {
-    //         method: 'GET',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         }
-    //     })
-    //         .then(function (response) {
-    //             return response.json();
-    //         })
-    //         .then(function (data) {
-    //             const reservations = data.fastfoodPlanning.map((mmDate => {
-    //                 let start = moment.utc(mmDate.start);
-    //                 let end = moment.utc(mmDate.end);
+    useEffect(() => {
+        if (!reduxToken) return; // Attendre que le token soit disponible
 
-    //                 mmDate.start = start.local().format();
-    //                 mmDate.end = end.local().format();
-    //                 mmDate.start = moment(start).toDate()
-    //                 mmDate.end = moment(end).toDate()
-    //                 return mmDate;
-    //             }))
-    //             setGetReservations(reservations)
-    //         })
-    //         .catch(function (error) {
-    //             console.error('Erreur:', error);
-    //         });
-    // }, [])
+        const sessionToken = sessionStorage.getItem("token");
 
-    useEffect(() => { // Bout de code qui permet d'éviter les doublons'
+        if (sessionToken === reduxToken) {
+            // Les tokens correspondent, exécutez votre fonction
+            if (ValidateOrderValue === true) {
+                fetch('http://88.125.148.207:21000/api/reservations/1/plan-add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fastfoodId: "1",
+                        start: reservationRequest.start,
+                        end: reservationRequest.end,
+                        title: reservationRequest.title
+                    })
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        console.log('Succès:', data);
+                        dispatch(setValidateOrder(null));
+                    })
+                    .catch(function (error) {
+                        console.error('Erreur:', error);
+                    });
+            }
+        } else {
+            console.error('Les tokens ne correspondent pas');
+            navigate("/login/clients"); // Rediriger l'utilisateur vers la page de login
+        }
+    }, [ValidateOrderValue, reduxToken, navigate]);
+
+    useEffect(() => {
         if (getReservations) {
             const onlyResa = [...myLocalEvents, ...getReservations].reduce((acc, current) => {
-                const x = acc.find(resa => resa._id === current._id)
+                const x = acc.find(resa => resa._id === current._id);
                 if (!x) {
-                    return acc.concat([current])
-
+                    return acc.concat([current]);
                 } else {
-                    return acc
+                    return acc;
                 }
-            }, [])
-            setLocalEvents(onlyResa)
+            }, []);
+            setLocalEvents(onlyResa);
         }
     }, [getReservations]);
 
-
-
     const handleSelectSlot = useCallback(
-        ({ start, end }) => { // ETANT DONNE QUE LA METHOD DE BIG CALENDAR POUR SELECTEVENT RETOURNE START ET END ET PAS DAUTRES NORMAL QUICI IL Y A QUE START END
-            const popup = window.prompt('Nouveau Crénaux')
+        ({ start, end }) => {
+            const popup = window.prompt('Nouveau Crénaux');
             if (popup) {
-                console.log(popup)
-                let newEvent = { // ICI SON NOTE LES PROPRIETES DES EVENTS DE MANIERE GENERALE
+                let newEvent = {
                     start: start,
                     end: end,
                     title: popup,
@@ -121,28 +126,19 @@ function UserAgenda() {
                         console.error('Erreur:', error);
                     });
 
-                setLocalEvents((prevEvents) => [...prevEvents, newEvent]) //ON STOCK DANS UN STATE POUR LES EVENTS LOCAUX PAS ENVOYE A LA DB ET PAS CONFIRME
-                setDBEvents(newEvent) // ON SETUP UN STATE POUR SAVOIR SI ON LE GARDE OU LE REFUSE DANS L'AgENDA
-
-                // setReservationsRequest({
-                //     start: start.toUTCString(),
-                //     end: end.toUTCString(),
-                //     title: title,
-                // })
+                setLocalEvents((prevEvents) => [...prevEvents, newEvent]);
+                setDBEvents(newEvent);
             }
         },
         []
-
-    )
-
+    );
 
     const handleSelectEvent = useCallback(
         (event) => {
-            window.alert("Créneaux Indisponible")
-        }
-
-        , []
-    )
+            window.alert("Créneaux Indisponible");
+        },
+        []
+    );
 
     const { defaultDate, scrollToTime } = useMemo(
         () => ({
@@ -150,60 +146,30 @@ function UserAgenda() {
             scrollToTime: new Date(),
         }),
         []
-    )
-
-
-    useEffect(() => {
-        if (ValidateOrderValue == true) {
-            fetch('http://88.125.148.207:21000/api/reservations/1/plan-add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    fastfoodId: "1",
-                    start: reservationRequest.start,
-                    end: reservationRequest.end,
-                    title: reservationRequest.title
-                })
-            })
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (data) {
-                    console.log('Succès:', data);
-                    dispatch(setValidateOrder(null))
-                })
-                .catch(function (error) {
-                    console.error('Erreur:', error);
-                });
-        }
-    }, [ValidateOrderValue])
-
-    console.log(myLocalEvents)
+    );
 
     const CustomUserComponents = {
         agenda: {
-
             event: () => {
-                if (myLocalEvents.isWaiting == true || DBEvents.isWaiting == true) {
+                if (myLocalEvents.isWaiting === true || DBEvents.isWaiting === true) {
                     return (
                         <Event tempBg="grey" />
-                    )
-                }
-
-                else {
+                    );
+                } else {
                     return (
                         <Event tempBg="#F1F1F1F1" />
-                    )
+                    );
                 }
-
-
-
             }
         }
+    };
 
+    if (!reduxToken) {
+        return (
+            <button onClick={() => { navigate("/login/clients") }}>Accueil</button>
+        );
     }
+
 
     return (
         <div style={{ display: "flex" }}>
@@ -232,10 +198,8 @@ function UserAgenda() {
                 timeslots={1}
                 components={CustomUserComponents}
             />
-        </div>)
-
+        </div>
+    );
 }
-
-
 
 export default UserAgenda;

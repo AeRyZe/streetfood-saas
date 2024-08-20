@@ -42,11 +42,19 @@ export const addPlanning = (req, res) => {
 };
 
 export const confirmPlanning = (req, res) => {
-    Waiting.updateOne(
-        { fastfoodId: req.params.fastfoodId, "fastfoodPlanning._id": req.body._id },
-        { $set: { "fastfoodPlanning.$.validation": true } }
-    )
-    .then(() => res.status(200).json({ message: 'Demande acceptée !'}))
+    Waiting.findOne({ fastfoodId: req.params.fastfoodId })
+    .then(plan => {
+        if (plan.fastfoodId == req.auth.userId) {
+                Waiting.updateOne(
+                { fastfoodId: req.params.fastfoodId, "fastfoodPlanning._id": req.body._id },
+                { $set: { "fastfoodPlanning.$.validation": true } }
+            )
+            .then(() => res.status(200).json({ message: 'Demande acceptée !' }))
+            .catch(error => res.status(404).json({ error }))
+        } else {
+            res.status(403).json({ message: 'Requête non-autorisée !'})
+        }
+    })
     .catch(error => res.status(404).json({ error }))
 };
 
@@ -80,19 +88,35 @@ export const confirmPlanning = (req, res) => {
 // };
 
 export const deletePlanning = (req, res) => {
-    Waiting.updateOne(
-        { fastfoodId: req.params.fastfoodId },
-        { $pull: { fastfoodPlanning: { _id: req.body._id } } }
-    )
-    .then(() => res.status(200).json({ message: 'Réservation supprimée !' }))
+    Waiting.findOne({ fastfoodId: req.params.fastfoodId })
+    .then(plan => {
+        if (plan.fastfoodId == req.auth.userId) {
+                Waiting.updateOne(
+                { fastfoodId: req.params.fastfoodId },
+                { $pull: { fastfoodPlanning: { _id: req.body._id } } }
+            )
+            .then(() => res.status(200).json({ message: 'Réservation supprimée !' }))
+            .catch(error => res.status(404).json({ error }))
+        } else {
+            res.status(403).json({ message: 'Requête non-autorisée !'})
+        }
+    })
     .catch(error => res.status(404).json({ error }))
 };
 
 export const editPlanning = (req, res) => {
-    Waiting.updateOne(
-        { fastfoodId: req.params.fastfoodId, "fastfoodPlanning._id": req.body._id },
-        { $set: { "fastfoodPlanning.$.start": req.body.start, "fastfoodPlanning.$.end": req.body.end } }
-    )
-    .then(() => res.status(200).json({ message: 'Réservation modifiée !'}))
+    Waiting.findOne({ fastfoodId: req.params.fastfoodId })
+    .then(plan => {
+        if (plan.fastfoodId == req.auth.userId) {
+            Waiting.updateOne(
+                { fastfoodId: req.params.fastfoodId, "fastfoodPlanning._id": req.body._id },
+                { $set: { "fastfoodPlanning.$.start": req.body.start, "fastfoodPlanning.$.end": req.body.end } }
+            )
+            .then(() => res.status(200).json({ message: 'Réservation modifiée !'}))
+            .catch(error => res.status(404).json({ error }))
+        } else {
+            res.status(403).json({ message: 'Requête non-autorisée !'})
+        }
+    })
     .catch(error => res.status(404).json({ error }))
 }

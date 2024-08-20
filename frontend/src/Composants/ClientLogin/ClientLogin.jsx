@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { setUserProfile } from "../../redux/features/UserProfileSlice";
 
@@ -27,6 +27,7 @@ function ClientLogin() {
 
             })
             .then(function (data) {
+                sessionStorage.setItem("token", data.token)
                 fetch('http://88.125.148.207:21000/api/users/' + data.token, {
                     method: 'GET',
                     headers: {
@@ -41,10 +42,12 @@ function ClientLogin() {
                             firstname: data.target.firstname,
                             lastname: data.target.lastname,
                             email: data.target.email,
-                            phone: data.target.phone
+                            phone: data.target.phone,
+                            token: sessionStorage.getItem("token")
                         }))
+                    }).then(
                         navigate("/userHome")
-                    });
+                    );
 
                 console.log('Succès:', data.token);
             })

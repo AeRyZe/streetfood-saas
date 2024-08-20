@@ -14,9 +14,10 @@ import {
 } from "react-router-dom";
 import './index.css'
 
+
 const router = createBrowserRouter([
   {
-    path: "/CompanyHome",
+    path: "/CompanyAgenda",
     element: <Agenda />,
   },
   {
