@@ -1,17 +1,15 @@
 import { useState } from "react";
-// import { useDispatch } from 'react-redux';
-// import { useNavigate } from "react-router-dom";
-// import { setUserProfile } from "../../redux/features/UserProfileSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from "react-router-dom";
+import { setCompanyProfile } from "../redux/features/CompanyProfileSlice";
 
 function CompanyLogin() {
-    // const navigate = useNavigate()
-    // const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
     const onSubmit = (e) => {
         e.preventDefault();
-
         fetch('http://88.125.148.207:21000/api/companies/login', {
             method: 'POST',
             headers: {
@@ -27,24 +25,35 @@ function CompanyLogin() {
 
             })
             .then(function (data) {
+                sessionStorage.setItem("token", data.token)
                 fetch('http://88.125.148.207:21000/api/companies/' + data.token, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                });
-                // .then(function (response) {
-                //     return response.json();
-                // })
-                // .then(function (data) {
-                //     dispatch(setUserProfile({
-                //         firstname: data.target.firstname,
-                //         lastname: data.target.lastname,
-                //         email: data.target.email,
-                //         phone: data.target.phone
-                //     }))
-                //     navigate("/userHome")
-                // })
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        console.log(data)
+                        dispatch(setCompanyProfile({
+                            name: data.target.name,
+                            firstname: data.target.firstname,
+                            lastname: data.target.lastname,
+                            email: data.target.email,
+                            phone: data.target.phone,
+                            adress: data.target.adress,
+                            siret: data.target.siret,
+                            idv: data.target._id,
+                            token: sessionStorage.getItem("token")
+                        }))
+                    }).then(() => {
+                        setTimeout(() => {
+                            navigate("/CompanyAgenda");
+                        }, 800); // Délai de 1 seconde (1000 millisecondes)
+                    });
+
 
                 console.log('Succès:', data.token);
             })

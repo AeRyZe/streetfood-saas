@@ -10,3 +10,7 @@
 .rbc-event {
     z-index: 2;
 }
+
+.test {
+    z-index: 100;
+}

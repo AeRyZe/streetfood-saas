@@ -1,6 +1,7 @@
 
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 
 function Event(props) {
@@ -8,14 +9,19 @@ function Event(props) {
     const [SubmitValidator, setSubmitValidator] = useState(true)
     const [DeleteValidator, setDeleteValidator] = useState(true)
     const [ModifyValidator, setModifyValidator] = useState(true)
+    const sessionToken = sessionStorage.getItem("token")
+    console.log(sessionToken)
+    const reduxId = useSelector((state) => state.CompanyProfile.idv);
+    console.log(reduxId)
     function SubmitEvent() {
         console.log(SubmitValidator)
         if (SubmitValidator == true) {
             setSubmitValidator(!SubmitValidator)
-            fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-verif', {
+            fetch(`http://88.125.148.207:21000/api/iswaiting/${reduxId}/plan-verif`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionToken}`
                 },
                 body: JSON.stringify({
                     _id: props.test._id,
@@ -37,10 +43,11 @@ function Event(props) {
         console.log(DeleteValidator)
         if (DeleteValidator == true) {
             setDeleteValidator(!DeleteValidator)
-            fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-del', {
+            fetch(`http://88.125.148.207:21000/api/iswaiting/${reduxId}/plan-del`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionToken}`
                 },
                 body: JSON.stringify({
                     _id: props.test._id,
@@ -65,14 +72,15 @@ function Event(props) {
         if (ModifyValidator == true) {
             const popup = window.prompt('Combien de minutes de retard ?')
             if (popup) {
-                actualstart.setMinutes(actualstart.getMinutes() + parseInt(popup))
+                actualstart.setMinutes(actualstart.getMinutes())
                 actualend.setMinutes(actualstart.getMinutes() + parseInt(popup / 2))
                 console.log(actualstart)
                 console.log(props.test._id)
-                fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-edit', {
+                fetch(`http://88.125.148.207:21000/api/iswaiting/${reduxId}/plan-edit`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
                     },
                     body: JSON.stringify({
                         start: actualstart,

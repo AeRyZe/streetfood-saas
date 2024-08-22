@@ -3,6 +3,8 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Event from "../CustomComposants/Event"
 import MonthEvent from '../CustomComposants/MonthEvent';
 
@@ -94,14 +96,23 @@ const messages = {
 
 const dayLayoutAlgorithm = 'no-overlap'
 
-
 function Agenda() {
     const [myLocalEvents, setLocalEvents] = useState()
     const [getReservations, setGetReservations] = useState()
     const [getResaIncr, setResaIncr] = useState(true)
     let today = new Date
+    const reduxToken = useSelector(state => state.CompanyProfile.token);
+    const sessionToken = sessionStorage.getItem("token");
+    let navigate = useNavigate()
+    console.log(reduxToken)
 
 
+    useEffect(() => {
+        const sessionToken = sessionStorage.getItem('token');
+        if (reduxToken != sessionToken) {
+            navigate("/login/companies")
+        }
+    }, [reduxToken]);
 
     useEffect(() => {
         fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-get', {

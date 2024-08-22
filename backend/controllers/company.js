@@ -35,7 +35,7 @@ export const login = (req, res) => {
         Company.findOne({ email: req.body.email })
         .then(user => {
             if (user) {
-                bcrypt.compare(req.body.email, user.email)
+                bcrypt.compare(req.body.password, user.password)
                 .then(valid => {
                     if (valid) {
                         res.status(200).json({
@@ -60,3 +60,12 @@ export const login = (req, res) => {
         res.status(500).json({ error })
     }
 };
+
+export const verifyUser = (req, res) => {
+    const decodedToken = jwt.verify(req.params.token, process.env.VITE_JWT_TOKEN);
+    const decodedId = decodedToken.userId;
+
+    Company.findOne({ _id: decodedId })
+    .then(target => res.status(200).json({ target }))
+    .catch(error => res.status(404).json({ error }))
+}

@@ -8,6 +8,7 @@ import { setValidateOrder } from '../../redux/features/ValidateOrderSlice';
 import Event from "../CustomComposants/Event";
 import '../../assets/style.css';
 import { useNavigate } from 'react-router-dom';
+import ClientLogin from '../ClientLogin/ClientLogin';
 
 const minTime = new Date();
 minTime.setHours(18, 0, 0); // La journée commence à 18h
@@ -43,11 +44,11 @@ function UserAgenda() {
     const dispatch = useDispatch();
     const reduxToken = useSelector((state) => state.UserProfile.token);
     const navigate = useNavigate();
-
+    const sessionToken = sessionStorage.getItem("token");
     useEffect(() => {
         if (!reduxToken) return; // Attendre que le token soit disponible
 
-        const sessionToken = sessionStorage.getItem("token");
+
 
         if (sessionToken === reduxToken) {
             // Les tokens correspondent, exécutez votre fonction
@@ -55,7 +56,8 @@ function UserAgenda() {
                 fetch('http://88.125.148.207:21000/api/reservations/1/plan-add', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
                     },
                     body: JSON.stringify({
                         fastfoodId: "1",
@@ -99,6 +101,7 @@ function UserAgenda() {
         ({ start, end }) => {
             const popup = window.prompt('Nouveau Crénaux');
             if (popup) {
+                console.log(reduxToken)
                 let newEvent = {
                     start: start,
                     end: end,
@@ -107,7 +110,8 @@ function UserAgenda() {
                 fetch('http://88.125.148.207:21000/api/iswaiting/1/plan-add', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
                     },
                     body: JSON.stringify({
                         fastfoodId: "1",
@@ -166,7 +170,7 @@ function UserAgenda() {
 
     if (!reduxToken) {
         return (
-            <button onClick={() => { navigate("/login/clients") }}>Accueil</button>
+            <ClientLogin />
         );
     }
 
